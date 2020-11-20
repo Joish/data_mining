@@ -3,6 +3,7 @@ from tweepy.streaming import StreamListener
 import os
 import json
 import pandas as pd
+import re
 
 
 class Listener(StreamListener):
@@ -10,8 +11,26 @@ class Listener(StreamListener):
     def on_data(self, data):
         all_data = json.loads(data)
 
-        self.write_file(all_data, type='txt')
-        # self.write_file(all_data, type='csv')
+        data = {
+            'user_name': all_data['user'].get('name', 'None'),
+            'user_location': all_data['user'].get('location', 'None'),
+            'user_description': all_data['user'].get('description', 'None'),
+            'user_created': all_data['user'].get('created_at', 'None'),
+            'user_followers': all_data['user'].get('followers_count', 'None'),
+            'user_friends': all_data['user'].get('friends_count', 'None'),
+            'user_favorities': all_data['user'].get('favourites_count', 'None'),
+            'user_verified': all_data['user'].get('verified', 'None'),
+            'date': all_data.get('created_at', 'None'),
+            'text': all_data['text'],
+            'hashtag': all_data['entities'].get('hashtags', []),
+            'source': self.handle_html_tags(all_data.get('source', 'None')),
+            'is_retweet': all_data.get('retweeted', 'None')
+        }
+
+        # print(data)
+        self.write_file(data, type='csv')
+        exit()
+        # self.write_file(all_data, type='txt')
 
         return True
 
@@ -27,7 +46,13 @@ class Listener(StreamListener):
             f.write(json.dumps(content))
             f.write("\n")
             f.close()
-        # elif type == 'csv':
-        #     file_path = os.path.join(cwd, "{}.csv".format(filename))
-        #     df = pd.DataFrame.from_dict(content, orient="index")
-        #     df.T.to_csv(file_path)
+        elif type == 'csv':
+            file_path = os.path.join(cwd, "{}.csv".format(filename))
+            print(content)
+            df = pd.DataFrame.from_dict(content)
+            print(df)
+            # df.to_csv(file_path)
+
+    def handle_html_tags(self, data):
+        p = re.compile(r'<.*?>')
+        return p.sub('', data)
