@@ -18,3 +18,20 @@ class FacebookStream():
 
     def run(self):
         print("STARTING FACEBOOK STREAM")
+
+        while(True):
+            posts = requests.get(url)
+            posts_json = posts.json()
+
+            for x1 in posts_json['data']:
+                postlst.append(x1.get('created_time'))
+            next_page = ""
+
+            try:
+                next_page = posts_json['paging']['next']
+                url = next_page
+            except:
+                break
+            if not next_page:
+                break
+            # print "Count: %s,  Next Page: %s" % ( len(postlst), url)
