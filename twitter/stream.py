@@ -2,8 +2,8 @@ import json
 from tweepy.streaming import StreamListener
 import os
 import json
-import pandas as pd
 import re
+import csv
 
 
 class Listener(StreamListener):
@@ -48,10 +48,9 @@ class Listener(StreamListener):
             f.close()
         elif type == 'csv':
             file_path = os.path.join(cwd, "{}.csv".format(filename))
-            print(content)
-            df = pd.DataFrame.from_dict(content)
-            print(df)
-            # df.to_csv(file_path)
+            with open(file_path, 'a') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=content.keys())
+                writer.writerows([content])
 
     def handle_html_tags(self, data):
         p = re.compile(r'<.*?>')
