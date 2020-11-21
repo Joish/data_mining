@@ -82,6 +82,8 @@ def get_list_of_date_between(start, end):
     edate = date(int(end_date_split[0]), int(end_date_split[1]),
                  int(end_date_split[2]))   # end date
 
+    edate = edate + timedelta(days=1)
+
     delta = edate - sdate       # as timedelta
 
     date_list = [str(sdate + timedelta(days=i)) for i in range(delta.days + 1)]

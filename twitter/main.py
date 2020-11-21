@@ -20,7 +20,8 @@ class TwitterStream():
         print("FILTER LIST : {}".format(self.filter_list))
 
         # self.run_strem()
-        self.get_previous_tweet(from_date="2020-11-18", to_date="2020-11-20")
+        self.get_previous_tweet(from_date="2020-11-18",
+                                to_date="2020-11-20", count=350)
 
     def run_strem(self):
         print("STARTING TWITTER STREAM")
@@ -29,10 +30,11 @@ class TwitterStream():
 
         twitterStream.filter(track=self.filter_list, languages=["en"])
 
-    def get_previous_tweet(self, from_date, to_date):
+    def get_previous_tweet(self, from_date, to_date, count=1000):
 
-        for keyword in self.filter_list:
+        for keyword in self.filter_list[:5]:
             search_words = "#{}".format(keyword)
+            search_words = search_words.replace(" ", " #")
             print(search_words)
 
             dates = get_list_of_date_between(from_date, to_date)
@@ -40,12 +42,16 @@ class TwitterStream():
                 tweets = Cursor(self.api.search,
                                 q=search_words,
                                 lang="en",
-                                until=date).items(5)
+                                until=date).items(count)
 
+                ind = 0
                 for tweet in tweets:
                     data = get_required_data(tweet._json, flag='previous')
-                    print(data['date'])
-                    # if data:
-                    #     write_file('twitter_previous', data, type='csv')
-                    # break
-            break
+                    # print(data['date'])
+                    if data:
+                        write_file('twitter_previous', data, type='csv')
+
+                    if ind % 100 == 0:
+                        print("{} - {} of {}".format(data['date'], ind, count))
+                    ind += 1
+            # break
