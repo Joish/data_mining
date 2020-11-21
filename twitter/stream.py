@@ -11,26 +11,30 @@ class Listener(StreamListener):
     def on_data(self, data):
         all_data = json.loads(data)
 
-        data = {
-            'user_name': all_data['user'].get('name', 'None'),
-            'user_location': all_data['user'].get('location', 'None'),
-            'user_description': all_data['user'].get('description', 'None'),
-            'user_created': all_data['user'].get('created_at', 'None'),
-            'user_followers': all_data['user'].get('followers_count', 'None'),
-            'user_friends': all_data['user'].get('friends_count', 'None'),
-            'user_favorities': all_data['user'].get('favourites_count', 'None'),
-            'user_verified': all_data['user'].get('verified', 'None'),
-            'date': all_data.get('created_at', 'None'),
-            'text': all_data['text'],
-            'hashtag': all_data['entities'].get('hashtags', []),
-            'source': self.handle_html_tags(all_data.get('source', 'None')),
-            'is_retweet': all_data.get('retweeted', 'None')
-        }
+        condition = 'user' in all_data.keys() and 'retweeted_status' in all_data.keys(
+        ) and 'extended_tweet' in all_data['retweeted_status'] and all_data['lang'] == 'en'
+        if condition:
+            data = {
+                'user_name': all_data['user'].get('name', 'None'),
+                'user_location': all_data['user'].get('location', 'None'),
+                'user_description': all_data['user'].get('description', 'None'),
+                'user_created': all_data['user'].get('created_at', 'None'),
+                'user_followers': all_data['user'].get('followers_count', 'None'),
+                'user_friends': all_data['user'].get('friends_count', 'None'),
+                'user_favorities': all_data['user'].get('favourites_count', 'None'),
+                'user_verified': all_data['user'].get('verified', 'None'),
+                'date': all_data.get('created_at', 'None'),
+                # 'text': all_data['text'],
+                'text': all_data['retweeted_status']['extended_tweet'].get('full_text', 'None'),
+                # 'hashtag': all_data['entities'].get('hashtags', []),
+                'hashtag': [_['text'] for _ in all_data['retweeted_status']['extended_tweet']['entities'].get('hashtags', [])],
+                'source': self.handle_html_tags(all_data.get('source', 'None')),
+                'is_retweet': all_data.get('retweeted', 'None')
+            }
 
-        # print(data)
-        self.write_file(data, type='csv')
-        exit()
-        # self.write_file(all_data, type='txt')
+            self.write_file(data, type='csv')
+            # print(all_data)
+            # exit()
 
         return True
 

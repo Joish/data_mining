@@ -32,4 +32,4 @@ class TwitterStream():
         filter_list = self.get_filter_list()
         print("FILTER LIST : {}".format(filter_list))
 
-        twitterStream.filter(track=filter_list)
+        twitterStream.filter(track=filter_list, languages=["en"])
