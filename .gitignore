@@ -2,6 +2,6 @@ __pycache__/
 config.py
 twitter/__pycache__/
 twitter/twitter.txt
-twitter/twitter.csv
+twitter/*.csv
 
 
