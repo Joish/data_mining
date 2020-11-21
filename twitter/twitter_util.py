@@ -26,7 +26,7 @@ def read_filter_list_from_file():
     file_path = os.path.join(cwd, "filter_list.txt")
     f = open(file_path, "r")
     filter_list = f.read().split("\n")
-    filter_list = [_.replace(" ", '') for _ in filter_list if _]
+    filter_list = [_.strip() for _ in filter_list if _]
     return filter_list
 
 
