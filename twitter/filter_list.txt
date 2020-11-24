@@ -1,6 +1,5 @@
 covid
 covid vaccin 
-covid-19 
 covid-19 vaccin
-corona
 corona vaccin
+vaccin

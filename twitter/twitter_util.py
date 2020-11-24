@@ -35,18 +35,22 @@ def get_required_data(all_data, flag='stream'):
 
     if flag == 'stream':
         condition = 'user' in all_data and 'retweeted_status' in all_data \
-            and 'extended_tweet' in all_data['retweeted_status'] and all_data['lang'] == 'en'
+            and 'extended_tweet' in all_data['retweeted_status'] and\
+            all_data['lang'] == 'en' and 'full_text' in all_data['retweeted_status']['extended_tweet']
 
-        text = all_data['retweeted_status']['extended_tweet'].get(
-            'full_text', 'None')
-        hashtag = [_['text'] for _ in all_data['retweeted_status']
-                   ['extended_tweet']['entities'].get('hashtags', [])]
+        if condition:
+            text = all_data['retweeted_status']['extended_tweet']['full_text']
+            hashtag = [_['text'] for _ in all_data['retweeted_status']
+                       ['extended_tweet']['entities'].get('hashtags', [])]
     else:
-        condition = 'user' in all_data and 'text' in all_data \
-            and 'entities' in all_data and all_data['lang'] == 'en'
+        condition = 'user' in all_data and 'retweeted_status' in all_data \
+            and 'full_text' in all_data['retweeted_status'] and \
+                'entities' in all_data and all_data['lang'] == 'en'
 
-        text = all_data['text']
-        hashtag = [_['text'] for _ in all_data['entities'].get('hashtags', [])]
+        if condition:
+            text = all_data['retweeted_status']['full_text']
+            hashtag = [_['text']
+                       for _ in all_data['entities'].get('hashtags', [])]
 
     if condition:
         data = {
@@ -59,7 +63,7 @@ def get_required_data(all_data, flag='stream'):
             'user_favorities': all_data['user'].get('favourites_count', 'None'),
             'user_verified': all_data['user'].get('verified', 'None'),
             'date': all_data.get('created_at', 'None'),
-            'text': text,
+            'text': apply_text_filters(text),
             'hashtag': hashtag,
             'source': handle_html_tags(all_data.get('source', 'None')),
             'is_retweet': all_data.get('retweeted', 'None')
@@ -71,6 +75,15 @@ def get_required_data(all_data, flag='stream'):
 def handle_html_tags(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
+
+
+def apply_text_filters(text):
+
+    text = re.sub(
+        r'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''', " ", text)
+    text = text.encode('ascii', errors='ignore').decode('utf-8')
+
+    return text
 
 
 def get_list_of_date_between(start, end):

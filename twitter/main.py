@@ -20,8 +20,9 @@ class TwitterStream():
         print("FILTER LIST : {}".format(self.filter_list))
 
         # self.run_strem()
-        self.get_previous_tweet(from_date="2020-11-18",
-                                to_date="2020-11-20", count=500)
+        self.get_previous_tweet(from_date="2020-11-15",
+                                to_date="2020-11-20", count_per_day=1000,
+                                total_count=1000)
 
     def run_strem(self):
         print("STARTING TWITTER STREAM")
@@ -30,32 +31,42 @@ class TwitterStream():
 
         twitterStream.filter(track=self.filter_list, languages=["en"])
 
-    def get_previous_tweet(self, from_date, to_date, count=1000):
+    def get_previous_tweet(self, from_date, to_date, count_per_day=1000, total_count=500):
 
         try:
             for keyword in self.filter_list[:5]:
                 search_words = "#{}".format(keyword)
+                # search_words = "{}".format(keyword)
                 # search_words = search_words.replace(" ", " #")
                 print(search_words)
+                file_write_count = 0
 
                 dates = get_list_of_date_between(from_date, to_date)
                 for date in dates[1:]:
                     tweets = Cursor(self.api.search,
                                     q=search_words,
+                                    tweet_mode='extended',
                                     lang="en",
-                                    until=date).items(count)
+                                    until=date).items(count_per_day)
 
                     ind = 0
                     for tweet in tweets:
                         data = get_required_data(tweet._json, flag='previous')
-                        # print(data['date'])
+                        # print(data)
                         if data:
                             write_file('twitter_previous', data, type='csv')
+                            file_write_count += 1
 
-                        if ind % 100 == 0:
-                            print(
-                                "{} - {} of {}".format(data['date'], ind, count))
-                        ind += 1
+                        print("COUNT : ", file_write_count)
+
+                        if total_count == file_write_count:
+                            exit()
+
+                        # if data and ind % 100 == 0:
+                        #     print(
+                        #         "{} - {} of {}".format(data['date'], ind, count))
+                        # ind += 1
+                        # print(ind)
         except TweepError as e:
             print(e)
             # break
