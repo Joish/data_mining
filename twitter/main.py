@@ -1,6 +1,6 @@
 import os
 import json
-from .stream import Listener
+from twitter.stream import Listener
 from tweepy import Stream, OAuthHandler, API, Cursor, TweepError
 from twitter.twitter_util import read_filter_list_from_file, get_required_data, write_file, get_list_of_date_between
 
@@ -16,25 +16,26 @@ class TwitterStream():
         self.auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
         self.api = API(self.auth, wait_on_rate_limit=True)
 
-        self.filter_list = read_filter_list_from_file()
-        print("FILTER LIST : {}".format(self.filter_list))
+        # Code to read wordlist from file
+        # self.filter_list = read_filter_list_from_file()
+        
+        # print("FILTER LIST : {}".format(self.filter_list))
+        # print(self.filter_list)
+        # self.run_stream()
+        # self.get_previous_tweet(from_date="2020-11-15",
+        #                         to_date="2020-11-20", count_per_day=1000,
+        #                         total_count=1000)
 
-        # self.run_strem()
-        self.get_previous_tweet(from_date="2020-11-15",
-                                to_date="2020-11-20", count_per_day=1000,
-                                total_count=1000)
-
-    def run_strem(self):
+    def run_stream(self, filter_list, limit=50):
         print("STARTING TWITTER STREAM")
-
+        print("Filter words :",filter_list)
         twitterStream = Stream(self.auth, Listener())
+        twitterStream.filter(track=filter_list, languages=["en"])
 
-        twitterStream.filter(track=self.filter_list, languages=["en"])
-
-    def get_previous_tweet(self, from_date, to_date, count_per_day=1000, total_count=500):
+    def get_previous_tweet(self, filter_list, from_date, to_date, count_per_day=1000, total_count=500):
 
         try:
-            for keyword in self.filter_list[:5]:
+            for keyword in filter_list[:5]:
                 search_words = "#{}".format(keyword)
                 # search_words = "{}".format(keyword)
                 # search_words = search_words.replace(" ", " #")
