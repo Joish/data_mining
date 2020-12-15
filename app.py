@@ -15,7 +15,7 @@ def getStream():
     """
     GET REQUEST FORMAT :
 
-    /getStream?word=covid&limit=5000
+    getStream?word=covid&limit=5000
 
     """
     search_words=[]
