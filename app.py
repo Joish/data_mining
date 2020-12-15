@@ -1,6 +1,12 @@
 from config import TwitterCredentials, FacebookCredentials
 from twitter.main import TwitterStream
 from flask import Flask,render_template,request,send_file
+from os import remove
+try:
+    remove("twitter/twitter_stream.csv")
+except:
+    pass
+
 twc = TwitterCredentials()
 
 app = Flask(__name__)
@@ -12,32 +18,30 @@ def index():
 
 @app.route('/getStream')
 def getStream():
-    """
-    GET REQUEST FORMAT :
-
-    getStream?word=covid&limit=5000
-
-    """
+    try:
+        remove("twitter/twitter_stream.csv")
+    except:
+        pass
     search_words=[]
-    search_words,append(request.args.get('word',None,str))
-    limit = request.args.get('limit',500)
+    search_words.append(request.args.get('word',None,str))
+    limit = request.args.get('limit',500,int)
     tws = TwitterStream(
         CONSUMER_KEY=twc.CONSUMER_KEY, 
         CONSUMER_SECRET=twc.CONSUMER_SECRET,
         ACCESS_TOKEN=twc.ACCESS_TOKEN, 
         ACCESS_SECRET=twc.ACCESS_SECRET)
     tws.run_stream(search_words,limit)
-    return str(search_word)+" "+str(limit)
-
+    
+    return send_file(
+        'twitter/twitter_stream.csv',
+        attachment_filename="stream.csv") 
 
 @app.route('/getTweets')
 def getTweets():
-    """
-    GET REQUEST FORMAT :
-
-    getTweets?word&from_date=&to_date&count_per_day=&total_count=
-
-    """
+    try:
+        remove("twitter/twitter_previous.csv")
+    except:
+        pass
     search_words=[]
     search_words.append(request.args.get('word',None,str))
     from_date=request.args.get('from_date',None,str)
@@ -56,10 +60,5 @@ def getTweets():
         'twitter/twitter_previous.csv', 
         attachment_filename=from_date+".csv")
 
-# @app.route('/test')
-# def testGet():
-#     return send_file(
-#         'twitter/twitter_previous.csv', 
-#         attachment_filename="test.csv")
 if __name__ == "__main__":
     app.run()

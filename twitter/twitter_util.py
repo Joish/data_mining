@@ -4,21 +4,27 @@ import csv
 import json
 from datetime import date, timedelta
 
-
-def write_file(filename, content, type='txt'):
+row = 0
+def write_file(filename, content, limit, type='txt'):
     # filename = 'twitter_stream'
+    global row
     cwd = os.path.dirname(os.path.realpath(__file__))
-    if type == 'txt':
-        file_path = os.path.join(cwd, "{}.txt".format(filename))
-        f = open(file_path, "a")
-        f.write(json.dumps(content))
-        f.write("\n")
-        f.close()
-    elif type == 'csv':
-        file_path = os.path.join(cwd, "{}.csv".format(filename))
-        with open(file_path, 'a') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=content.keys())
-            writer.writerows([content])
+    print(row," ",limit)
+    if row<=limit:
+        if type == 'txt':
+            file_path = os.path.join(cwd, "{}.txt".format(filename))
+            f = open(file_path, "a")
+            f.write(json.dumps(content))
+            f.write("\n")
+            f.close()
+        elif type == 'csv':
+            file_path = os.path.join(cwd, "{}.csv".format(filename))
+            with open(file_path, 'a') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=content.keys())
+                writer.writerows([content])
+        row+=1
+    else:
+        return True
 
 
 def read_filter_list_from_file():

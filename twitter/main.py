@@ -29,8 +29,10 @@ class TwitterStream():
     def run_stream(self, filter_list, limit=50):
         print("STARTING TWITTER STREAM")
         print("Filter words :",filter_list)
-        twitterStream = Stream(self.auth, Listener())
+        count = 0
+        twitterStream = Stream(self.auth, Listener(limit))
         twitterStream.filter(track=filter_list, languages=["en"])
+        count+=1
 
     def get_previous_tweet(self, filter_list, from_date, to_date, count_per_day=1000, total_count=500):
 
